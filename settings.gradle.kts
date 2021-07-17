@@ -1,4 +1,4 @@
-rootProject.name = "api-service"
+rootProject.name = "api-service-user"
 include("api")
 include("domain-mysql")
 include("external")

@@ -1,5 +1,6 @@
 package com.service.api.api.user
 
+import com.service.api.annotaion.HeaderValid
 import com.service.api.api.user.UserController.Companion.USER_BASE_URL
 import com.service.api.domainmysql.service.user.UserService
 import com.service.api.message.token.TokenResMessage
@@ -33,14 +34,15 @@ class UserController(
     = userService.login(loginReqMessage)
 
     @PutMapping
+    @HeaderValid(X_HEADER_USER_MAIL)
     fun updateUser(
         @RequestHeader(X_HEADER_USER_MAIL) mail: String,
         @RequestBody userUpdateReqMessage: UserUpdateReqMessage
-    ): UserUpdateResMessage {
-        return userService.updateUser(mail, userUpdateReqMessage.password, userUpdateReqMessage.newPassword)
-    }
+    ): UserUpdateResMessage
+    = userService.updateUser(mail, userUpdateReqMessage.password, userUpdateReqMessage.newPassword)
 
     @GetMapping("/{mail}")
+    @HeaderValid(X_HEADER_USER_MAIL)
     fun getUserInfo(
         @RequestHeader(X_HEADER_USER_MAIL) headerMail: String,
         @PathVariable("mail") mail: String
@@ -48,6 +50,7 @@ class UserController(
     = userService.getUserInfo(headerMail, mail)
 
     @GetMapping("/refreshToken")
+    @HeaderValid(X_HEADER_USER_MAIL)
     fun getAccessToken(@RequestHeader(X_HEADER_USER_MAIL) headerMail: String)
     = userService.getAccessToken(headerMail)
 

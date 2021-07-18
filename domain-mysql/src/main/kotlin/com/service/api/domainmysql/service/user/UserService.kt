@@ -69,7 +69,7 @@ class UserService(
             this
         } ?: throw NotFoundUserException(NOT_FOUND_USER)
 
-        if (!passwordEncoder.matches(newPassword, user.pwd)) {
+        if (!passwordEncoder.matches(password, user.pwd)) {
             throw NotFoundUserException(NOT_FOUND_USER)
         }
 

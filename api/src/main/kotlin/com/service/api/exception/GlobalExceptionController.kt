@@ -5,10 +5,12 @@ import com.service.api.domainmysql.exception.user.NotFoundUserException
 import com.service.api.message.error.ErrorResponse
 import mu.KLogging
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import java.lang.RuntimeException
 import javax.servlet.http.HttpServletRequest
 
 @ControllerAdvice
@@ -27,15 +29,7 @@ class GlobalExceptionController {
             errorMessage = bindingResult.fieldError?.defaultMessage!!
         }
 
-        logger.info { "valid requestUrl: ${request.requestURI} | method: ${request.method} | message: $errorMessage" }
-        return ResponseEntity<ErrorResponse>(
-            ErrorResponse(
-                errorMessage,
-                HttpStatus.BAD_REQUEST.reasonPhrase,
-                HttpStatus.BAD_REQUEST.value().toString()
-            ),
-            HttpStatus.BAD_REQUEST
-        )
+        return getResponseEntity(request, errorMessage)
     }
 
     @ExceptionHandler(AlreadyUserEmailException::class)
@@ -43,16 +37,7 @@ class GlobalExceptionController {
         exception: AlreadyUserEmailException,
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-
-        logger.info { "valid requestUrl: ${request.requestURI} | method: ${request.method} | message: ${exception.message}" }
-        return ResponseEntity<ErrorResponse>(
-            ErrorResponse(
-                exception.message!!,
-                HttpStatus.BAD_REQUEST.reasonPhrase,
-                HttpStatus.BAD_REQUEST.value().toString()
-            ),
-            HttpStatus.BAD_REQUEST
-        )
+        return getResponseEntity(request, exception.message!!)
     }
 
     @ExceptionHandler(NotFoundUserException::class)
@@ -60,18 +45,30 @@ class GlobalExceptionController {
         exception: NotFoundUserException,
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-
-        logger.info { "valid requestUrl: ${request.requestURI} | method: ${request.method} | message: ${exception.message}" }
-        return ResponseEntity<ErrorResponse>(
-            ErrorResponse(
-                exception.message!!,
-                HttpStatus.BAD_REQUEST.reasonPhrase,
-                HttpStatus.BAD_REQUEST.value().toString()
-            ),
-            HttpStatus.BAD_REQUEST
-        )
+        return getResponseEntity(request, exception.message!!)
     }
 
+    @ExceptionHandler(HeaderException::class)
+    fun badHeaderRequest(
+        exception: HeaderException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        return getResponseEntity(request, exception.message!!)
+    }
 
+    private fun getResponseEntity(
+        request: HttpServletRequest,
+        message: String
+    ): ResponseEntity<ErrorResponse> {
+        logger.info { "valid requestUrl: ${request.requestURI} | method: ${request.method} | message: $message" }
+        return ResponseEntity<ErrorResponse>(
+            ErrorResponse(
+                message,
+                BAD_REQUEST.reasonPhrase,
+                BAD_REQUEST.value().toString()
+            ),
+            BAD_REQUEST
+        )
+    }
 
 }

@@ -1,12 +1,8 @@
-package com.service.api.config
+security를 넣었다가 작업 해보니... 의미가 없어 제거한다.
+//testImplementation("org.springframework.security:spring-security-test")
+//implementation("org.springframework.boot:spring-boot-starter-security")
 
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.http.SessionCreationPolicy.STATELESS
-
+간단하게 적용했던 로직만 남긴다.
 @Configuration
 @EnableWebSecurity
 class SecurityConfig: WebSecurityConfigurerAdapter() {
@@ -18,6 +14,7 @@ class SecurityConfig: WebSecurityConfigurerAdapter() {
             .antMatchers("/configuration/**")
     }
 
+    //붙이기는 했는뎁.. 이게 의미가 있나 한다...
     override fun configure(http: HttpSecurity) {
         http
             .csrf().disable()

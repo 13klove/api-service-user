@@ -1,10 +1,14 @@
 spring:
 
   datasource:
-    url: jdbc:h2:tcp://localhost/~/test
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3307/food?serverTimezone=UTC&characterEncoding=UTF-8
+    username: food
+    password: food123!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:h2:tcp://localhost/~/test
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
@@ -19,3 +23,7 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+
+secret:
+  #key: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
+  key: foodRecommendfoodRecommendfoodRecommendfoodRecommendfoodRecommend

@@ -1,6 +1,7 @@
 package com.service.api.exception
 
 import com.service.api.domainmysql.exception.user.AlreadyUserEmailException
+import com.service.api.domainmysql.exception.user.NotFoundUserException
 import com.service.api.message.error.ErrorResponse
 import mu.KLogging
 import org.springframework.http.HttpStatus
@@ -53,5 +54,24 @@ class GlobalExceptionController {
             HttpStatus.BAD_REQUEST
         )
     }
+
+    @ExceptionHandler(NotFoundUserException::class)
+    fun notfoundUser(
+        exception: NotFoundUserException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+
+        logger.info { "valid requestUrl: ${request.requestURI} | method: ${request.method} | message: ${exception.message}" }
+        return ResponseEntity<ErrorResponse>(
+            ErrorResponse(
+                exception.message!!,
+                HttpStatus.BAD_REQUEST.reasonPhrase,
+                HttpStatus.BAD_REQUEST.value().toString()
+            ),
+            HttpStatus.BAD_REQUEST
+        )
+    }
+
+
 
 }

@@ -13,7 +13,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 class ApiSwaggerConfig {
 
     companion object {
-        const val VERSION01 = "user"
+        const val VERSION01 = "/api-docs/user"
     }
 
     @Bean
@@ -23,8 +23,7 @@ class ApiSwaggerConfig {
             .groupName(VERSION01)
             .select()
             .apis(RequestHandlerSelectors.basePackage("com.service.api.api"))//api endpoint
-            .paths(PathSelectors.ant("/users"))//api endpoint
+            .paths(PathSelectors.ant("/users/**"))//api endpoint
             .build()
-
 
 }

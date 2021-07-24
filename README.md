@@ -2,4 +2,4 @@
 GW, EUREKA, USER, SERVICE
 MYSQL, REDIS
 
-security
+security add

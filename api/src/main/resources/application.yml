@@ -27,3 +27,6 @@ logging.level:
 
 secret:
   key: foodRecommendfoodRecommendfoodRecommendfoodRecommendfoodRecommend
+
+server:
+  port: 8081

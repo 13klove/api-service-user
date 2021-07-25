@@ -5,6 +5,7 @@ import com.service.api.message.token.TokenResMessage
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm.HS512
 import io.jsonwebtoken.security.Keys
+
 import mu.KLogging
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
@@ -22,7 +23,6 @@ class TokenProvider(
     companion object: KLogging() {
         const val AUTHORITIES_KEY = "auth"
         const val REFRESH_KEY = "refresh"
-        const val BEAR_TYPE = "bearer"
         const val ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30//30분
         const val REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7//7일
     }
@@ -39,13 +39,7 @@ class TokenProvider(
         val expiredDate = Instant.now().toEpochMilli()
 
         val accessToken = createAccessToken(user, expiredDate)
-
-        val refreshToken = Jwts.builder()
-            .setSubject(user.email)
-            .claim(REFRESH_KEY, true)
-            .setExpiration(Date(expiredDate + REFRESH_TOKEN_EXPIRE_TIME))
-            .signWith(key, HS512)
-            .compact()
+        val refreshToken = createRefreshToken(user, expiredDate)
 
         return TokenResMessage(accessToken, refreshToken)
     }
@@ -61,10 +55,17 @@ class TokenProvider(
     }
 
     private fun createAccessToken(user: User, expiredDate: Long): String
-    = Jwts.builder()
+        = Jwts.builder()
         .setSubject(user.email)
         .claim(AUTHORITIES_KEY, user.role)
         .setExpiration(Date(expiredDate + ACCESS_TOKEN_EXPIRE_TIME))
+        .signWith(key, HS512)
+        .compact()
+
+    private fun createRefreshToken(user: User, expiredDate: Long) = Jwts.builder()
+        .setSubject(user.email)
+        .claim(REFRESH_KEY, true)
+        .setExpiration(Date(expiredDate + REFRESH_TOKEN_EXPIRE_TIME))
         .signWith(key, HS512)
         .compact()
 

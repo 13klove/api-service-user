@@ -22,7 +22,7 @@ class UserController(
 
     companion object: KLogging() {
         const val USER_BASE_URL = "users"
-        const val X_HEADER_USER_MAIL = "x-header-user-mail"
+        const val X_HEADER_USER_MAIL = "X-HEADER-USER-MAIL"
     }
 
     @PostMapping
@@ -49,7 +49,7 @@ class UserController(
     ): UserInfoResMessage
     = userService.getUserInfo(headerMail, mail)
 
-    @GetMapping("/refreshToken")
+    @GetMapping("/re-accesstoken")
     @HeaderValid(X_HEADER_USER_MAIL)
     fun getAccessToken(@RequestHeader(X_HEADER_USER_MAIL) headerMail: String)
     = userService.getAccessToken(headerMail)

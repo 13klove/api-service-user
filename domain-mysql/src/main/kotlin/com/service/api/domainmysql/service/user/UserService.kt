@@ -2,7 +2,9 @@ package com.service.api.domainmysql.service.user
 
 import com.service.api.domainmysql.exception.user.AlreadyUserEmailException
 import com.service.api.domainmysql.exception.user.NotFoundUserException
+import com.service.api.domainmysql.model.refresh.token.RefreshToken
 import com.service.api.domainmysql.model.user.User
+import com.service.api.domainmysql.repository.refresh.token.RefreshTokenRepository
 import com.service.api.domainmysql.repository.user.UserRepository
 import com.service.api.domainmysql.service.token.TokenProvider
 import com.service.api.message.token.TokenResMessage
@@ -15,11 +17,14 @@ import mu.KLogging
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import kotlin.math.log
 
 @Service
 @Transactional(readOnly = true)
 class UserService(
     private val userRepository: UserRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val tokenProvider: TokenProvider,
 ) {
@@ -49,6 +54,7 @@ class UserService(
         return UserRegResMessage(user.email!!)
     }
 
+    @Transactional
     fun login(loginReqMessage: LoginReqMessage): TokenResMessage {
         val user = userRepository.findByEmail(loginReqMessage.mail) ?: run {
             logger.info { "not found user: ${loginReqMessage.mail}" }
@@ -59,19 +65,29 @@ class UserService(
             throw NotFoundUserException(NOT_FOUND_USER)
         }
 
-        return tokenProvider.getAllToken(user)
+        refreshTokenRepository.findByEmailAndExpiredFalse(user.email!!)?.run {
+            this.updateAt = LocalDateTime.now()
+            this.expired = true
+        }
+
+        val resultToken = tokenProvider.getAllToken(user)
+
+        val refreshToken = RefreshToken(user.email!!, resultToken.refreshToken!!)
+        refreshTokenRepository.save(refreshToken)
+
+        return resultToken
     }
 
     @Transactional
     fun updateUser(mail: String, password: String, newPassword: String): UserUpdateResMessage {
         val user = userRepository.findByEmail(mail)?.run {
-            this.pwd = passwordEncoder.encode(password)
+            if (!passwordEncoder.matches(password, this.pwd)) {
+                throw NotFoundUserException(NOT_FOUND_USER)
+            }
+
+            this.pwd = passwordEncoder.encode(newPassword)
             this
         } ?: throw NotFoundUserException(NOT_FOUND_USER)
-
-        if (!passwordEncoder.matches(password, user.pwd)) {
-            throw NotFoundUserException(NOT_FOUND_USER)
-        }
 
         return UserUpdateResMessage(user.email!!)
     }
